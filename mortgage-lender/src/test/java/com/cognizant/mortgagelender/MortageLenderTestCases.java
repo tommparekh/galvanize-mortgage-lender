@@ -202,4 +202,62 @@ And their loan status is <status>
 
 
     // Test Case TBD : What if loan is requested but no available funds.
+    @Test
+    public void testWhenLenderHaveAvailableFundThenLoanStatusIsApprovedForQualifiedResponse() throws NegativeAmountException, UnqualifiedLoanException {
+        // Arrange
+        mortgageLender.setAvailableFund(500000);
+        Candidate candidate = new Candidate("ID5", 21, 700, 100000);
+        LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
+        // Act
+        LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
+        LoanApproval loanApproval= mortgageLender.approveLoan(goodCandidateResponse);
+        // Assert
+
+        assertEquals(loanApproval.getStatus(),"approved" );
+
+    }
+    @Test
+    public void testWhenLenderHaveAvailableFundThenLoanStatusIsApprovedForPartiallyQualifiedResponse() throws NegativeAmountException, UnqualifiedLoanException {
+        // Arrange
+        mortgageLender.setAvailableFund(500000);
+        Candidate candidate = new Candidate("ID5", 21, 700, 1000);
+        LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
+        // Act
+        LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
+        LoanApproval loanApproval= mortgageLender.approveLoan(goodCandidateResponse);
+        // Assert
+
+        assertEquals(loanApproval.getStatus(),"approved" );
+
+    }
+
+    @Test
+    public void testWhenLenderHaveInsufficientAvailableFundThenLoanStatusIsOnHoldForQualifiedResponse() throws NegativeAmountException, UnqualifiedLoanException {
+        // Arrange
+        mortgageLender.setAvailableFund(200000);
+        Candidate candidate = new Candidate("ID5", 21, 700, 100000);
+        LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
+        // Act
+        LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
+        LoanApproval loanApproval= mortgageLender.approveLoan(goodCandidateResponse);
+        // Assert
+
+        assertEquals(loanApproval.getStatus(),"onhold" );
+
+    }
+
+//    @Test
+//    public void testWhenLenderHaveAvailableFundForOnlyOneRequestThenOneIsApprovedOtherIsOnHold(){}
+//
+//    // Assumption - we process loan request in the order we receive.
+//
+//    // I have - 25 -> 15 -> 10
+//    // Request order - 10 (approved), 5 (approve), 20 (hold), 80 (hold), 25(hold)
+//
+//    @Test
+//    public void testWhenLenderHaveAvailableFundForTwoRequestsThenTwoAreApprovedInOrderOthersAreOnHold(){}
+
+
+
 }
+
