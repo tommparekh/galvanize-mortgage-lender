@@ -1,4 +1,6 @@
-package com.cognizant.mortgagelender;
+package com.cognizant.mortgagelender.loan;
+
+import com.cognizant.mortgagelender.candidate.Candidate;
 
 public class LoanResponse {
     private LoanRequest loanRequest;

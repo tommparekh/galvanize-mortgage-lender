@@ -1,5 +1,17 @@
 package com.cognizant.mortgagelender;
 
+import com.cognizant.mortgagelender.candidate.Candidate;
+import com.cognizant.mortgagelender.exception.NegativeAmountException;
+import com.cognizant.mortgagelender.exception.UnqualifiedLoanException;
+import com.cognizant.mortgagelender.loan.LoanApproval;
+import com.cognizant.mortgagelender.loan.LoanOffer;
+import com.cognizant.mortgagelender.loan.LoanRequest;
+import com.cognizant.mortgagelender.loan.LoanResponse;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 public class MortgageLender {
     private static final String QUALIFICATION_QUALIFIED = "qualified";
     private static final String QUALIFICATION_NOT_QUALIFIED = "not qualified";
@@ -10,6 +22,8 @@ public class MortgageLender {
     private static final String STATUS_ONHOLD = "onhold";
     private static final String STATUS_ACCEPTED = "accepted";
     private static final String STATUS_REJECTED = "rejected";
+
+    private List<LoanApproval> listOfApprovals = new ArrayList<>();
 
     private double pendingFund;
     private double availableFund;
@@ -23,6 +37,14 @@ public class MortgageLender {
             throw new NegativeAmountException("Pending Fund is less then zero.");
         }
         this.pendingFund = pendingFund;
+    }
+
+    public List<LoanApproval> getListOfApprovals() {
+        return listOfApprovals;
+    }
+
+    public void setListOfApprovals(List<LoanApproval> listOfApprovals) {
+        this.listOfApprovals = listOfApprovals;
     }
 
     public double getAvailableFund() {
@@ -75,7 +97,7 @@ public class MortgageLender {
         return response;
     }
 
-    public LoanApproval approveLoan(LoanResponse response) throws UnqualifiedLoanException, NegativeAmountException {
+    public LoanApproval approveLoan(LoanResponse response) throws UnqualifiedLoanException, NegativeAmountException, CloneNotSupportedException {
         if (response.getQualification().equals(MortgageLender.QUALIFICATION_QUALIFIED)
                 || response.getQualification().equals(MortgageLender.QUALIFICATION_PARTIALLY_QUALIFIED)) {
             LoanApproval approval = new LoanApproval(response);
@@ -85,6 +107,9 @@ public class MortgageLender {
                 approval.setLoanApprovalStatus(MortgageLender.STATUS_APPROVED);
                 this.setAvailableFund((getAvailableFund() - approval.getLoanResponse().getLoanAmount()));
                 this.setPendingFund((getPendingFund() + approval.getLoanResponse().getLoanAmount()));
+                approval.setApprovalDate(LocalDate.now());
+
+                listOfApprovals.add((LoanApproval) approval.clone());
             }
 
             return approval;
@@ -104,5 +129,8 @@ public class MortgageLender {
         }
         pendingFund -= approval.getLoanResponse().getLoanAmount();
         return loanOffer;
+    }
+
+    public void checkExpiredApprovals() {
     }
 }

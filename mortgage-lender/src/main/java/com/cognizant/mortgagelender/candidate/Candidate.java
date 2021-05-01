@@ -1,4 +1,4 @@
-package com.cognizant.mortgagelender;
+package com.cognizant.mortgagelender.candidate;
 
 public class Candidate {
     private String candidateId;

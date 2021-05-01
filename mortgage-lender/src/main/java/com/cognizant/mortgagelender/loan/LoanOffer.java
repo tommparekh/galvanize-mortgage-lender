@@ -1,4 +1,4 @@
-package com.cognizant.mortgagelender;
+package com.cognizant.mortgagelender.loan;
 
 public class LoanOffer {
 

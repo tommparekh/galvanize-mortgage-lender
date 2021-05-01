@@ -1,7 +1,18 @@
 package com.cognizant.mortgagelender;
 
+import com.cognizant.mortgagelender.candidate.Candidate;
+import com.cognizant.mortgagelender.exception.NegativeAmountException;
+import com.cognizant.mortgagelender.exception.UnqualifiedLoanException;
+import com.cognizant.mortgagelender.loan.LoanApproval;
+import com.cognizant.mortgagelender.loan.LoanOffer;
+import com.cognizant.mortgagelender.loan.LoanRequest;
+import com.cognizant.mortgagelender.loan.LoanResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -203,7 +214,7 @@ And their loan status is <status>
 
     // Test Case TBD : What if loan is requested but no available funds.
     @Test
-    public void testWhenLenderHaveAvailableFundThenLoanStatusIsApprovedForQualifiedResponse() throws NegativeAmountException, UnqualifiedLoanException {
+    public void testWhenLenderHaveAvailableFundThenLoanStatusIsApprovedForQualifiedResponse() throws NegativeAmountException, UnqualifiedLoanException, CloneNotSupportedException {
         // Arrange
         mortgageLender.setAvailableFund(500000);
         Candidate candidate = new Candidate("ID5", 21, 700, 100000);
@@ -218,7 +229,7 @@ And their loan status is <status>
     }
 
     @Test
-    public void testWhenLenderHaveAvailableFundThenLoanStatusIsApprovedForPartiallyQualifiedResponse() throws NegativeAmountException, UnqualifiedLoanException {
+    public void testWhenLenderHaveAvailableFundThenLoanStatusIsApprovedForPartiallyQualifiedResponse() throws NegativeAmountException, UnqualifiedLoanException, CloneNotSupportedException {
         // Arrange
         mortgageLender.setAvailableFund(500000);
         Candidate candidate = new Candidate("ID5", 21, 700, 1000);
@@ -233,7 +244,7 @@ And their loan status is <status>
     }
 
     @Test
-    public void testWhenLenderHaveInsufficientAvailableFundThenLoanStatusIsOnHoldForQualifiedResponse() throws NegativeAmountException, UnqualifiedLoanException {
+    public void testWhenLenderHaveInsufficientAvailableFundThenLoanStatusIsOnHoldForQualifiedResponse() throws NegativeAmountException, UnqualifiedLoanException, CloneNotSupportedException {
         // Arrange
         mortgageLender.setAvailableFund(200000);
         Candidate candidate = new Candidate("ID5", 21, 700, 100000);
@@ -267,7 +278,7 @@ And their loan status is <status>
 
 
     @Test
-    public void whenLoanIsApprovedThenPendingFundIncreaseByLoanAmountAndAvailableFundDecreaseByLoanAmount() throws NegativeAmountException, UnqualifiedLoanException {
+    public void whenLoanIsApprovedThenPendingFundIncreaseByLoanAmountAndAvailableFundDecreaseByLoanAmount() throws NegativeAmountException, UnqualifiedLoanException, CloneNotSupportedException {
         // Arrange
         mortgageLender.setAvailableFund(250000);
         mortgageLender.setPendingFund(10000);
@@ -324,7 +335,7 @@ And their loan status is <status>
 //    And the loan status is marked as rejected
 
     @Test
-    public void testWhenCustomerAcceptApprovedLoanThenUpdatePendingFundAndMarkApprovedLoanAsAccepted() throws NegativeAmountException, UnqualifiedLoanException {
+    public void testWhenCustomerAcceptApprovedLoanThenUpdatePendingFundAndMarkApprovedLoanAsAccepted() throws NegativeAmountException, UnqualifiedLoanException, CloneNotSupportedException {
         // Arrange
         mortgageLender.setAvailableFund(250000);
         mortgageLender.setPendingFund(10000);
@@ -337,7 +348,7 @@ And their loan status is <status>
         LoanOffer offer = mortgageLender.processOffer(approval, true);
         double pendingFund = mortgageLender.getPendingFund();
 
-         // Assert
+        // Assert
         assertEquals(pendingFund, 10000);
         assertEquals(offer.getLoanOfferStatus(), "accepted");
         assertEquals(offer.getLoanResponse().getLoanApprovalStatus(), "approved");
@@ -345,7 +356,7 @@ And their loan status is <status>
     }
 
     @Test
-    public void testWhenCustomerRejectApprovedLoanThenUpdateAvailableFundAndMarkApprovedLoanAsRejected() throws NegativeAmountException, UnqualifiedLoanException {
+    public void testWhenCustomerRejectApprovedLoanThenUpdateAvailableFundAndMarkApprovedLoanAsRejected() throws NegativeAmountException, UnqualifiedLoanException, CloneNotSupportedException {
         // Arrange
         mortgageLender.setAvailableFund(250000);
         mortgageLender.setPendingFund(10000);
@@ -365,6 +376,59 @@ And their loan status is <status>
         assertEquals(offer.getLoanOfferStatus(), "rejected");
         assertEquals(offer.getLoanResponse().getLoanApprovalStatus(), "rejected");
         assertEquals(offer.getLoanResponse().getLoanResponse().getLoanResponseStatus(), "rejected");
+    }
+
+//    As a lender, I want to check if there are any undecided loans, so that I can manage my time and money wisely.
+//
+//    Rule: approved loans expired in 3 days
+//
+//    Given there is an approved loan offered more than 3 days ago
+//    When I check for expired loans
+//    Then the loan amount is move from the pending funds back to available funds
+//    And the loan status is marked as expired
+
+
+    @Test
+    public void testWhenApprovedLoanIsOlderThenThreeDaysThenExpireLoanAndUpdateAvailableFund() throws NegativeAmountException, UnqualifiedLoanException, CloneNotSupportedException {
+
+        // Arrange
+        mortgageLender.setAvailableFund(250000);
+        mortgageLender.setPendingFund(10000);
+        Candidate candidate = new Candidate("ID5", 21, 700, 100000);
+        LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
+        LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
+        LoanApproval approval = mortgageLender.approveLoan(goodCandidateResponse);
+        // approval.setApprovalDate(LocalDate.now().minus(Period.ofDays(3)));;
+
+        Optional<LoanApproval> found = mortgageLender.getListOfApprovals().stream().filter(obj -> obj.equals(approval)).findFirst();
+        if (found.isPresent()) {
+            found.get().setApprovalDate(LocalDate.now().minus(Period.ofDays(3)));
+        }
+
+        double pendingFundBeforeExpire = mortgageLender.getPendingFund();   // expect 0
+        double availableFundBeforeExpire = mortgageLender.getAvailableFund(); //expect 251000
+
+
+        // Act
+        mortgageLender.checkExpiredApprovals();
+        double pendingFundAfterExpire = mortgageLender.getPendingFund();
+        double availableFundAfterExpire = mortgageLender.getAvailableFund();
+
+        // Assert
+        assertEquals(pendingFundBeforeExpire, 0);
+        assertEquals(availableFundBeforeExpire, 251000);
+        assertEquals(pendingFundAfterExpire, 10000);
+        assertEquals(availableFundAfterExpire, 250000);
+    }
+
+
+    @Test
+    public void testWhenApprovedLoanIsOlderFiveThreeDaysThenExpireLoanAndUpdateAvailableFund() {
+
+    }
+
+    @Test
+    public void testWhenApprovedLoanIsOlderTwoDaysThenNoStatusChangeAndNoChangeInAvailableFund() {
 
     }
 }
