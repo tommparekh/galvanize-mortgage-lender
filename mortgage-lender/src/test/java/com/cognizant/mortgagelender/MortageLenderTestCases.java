@@ -34,6 +34,4 @@ public class MortageLenderTestCases {
         assertEquals(fundAmount,100000.0);
     }
 
-
-
 }
