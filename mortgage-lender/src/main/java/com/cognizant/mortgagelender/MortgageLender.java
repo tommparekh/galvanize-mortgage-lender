@@ -8,7 +8,16 @@ public class MortgageLender {
     private static final String STATUS_QUALIFIED = "qualified";
     private static final String STATUS_APPROVED = "approved";
     private static final String STATUS_ONHOLD = "onhold";
+    private double pendingFund;
     private double availableFund;
+
+    public double getPendingFund() {
+        return pendingFund;
+    }
+
+    public void setPendingFund(double pendingFund) {
+        this.pendingFund = pendingFund;
+    }
 
     public double getAvailableFund() {
         return availableFund;
@@ -60,7 +69,7 @@ public class MortgageLender {
         return response;
     }
 
-    public LoanApproval approveLoan(LoanResponse response) throws UnqualifiedLoanException {
+    public LoanApproval approveLoan(LoanResponse response) throws UnqualifiedLoanException, NegativeAmountException {
         if (response.getQualification().equals(MortgageLender.QUALIFICATION_QUALIFIED)
                 || response.getQualification().equals(MortgageLender.QUALIFICATION_PARTIALLY_QUALIFIED)) {
             LoanApproval approval = new LoanApproval(response);
@@ -68,9 +77,13 @@ public class MortgageLender {
                 approval.setStatus(MortgageLender.STATUS_ONHOLD);
             } else {
                 approval.setStatus(MortgageLender.STATUS_APPROVED);
+                this.setAvailableFund((getAvailableFund() - approval.getLoanResponse().getLoanAmount()));
+                this.setPendingFund((getPendingFund() + approval.getLoanResponse().getLoanAmount()));
             }
+
             return approval;
         } else throw new UnqualifiedLoanException();
 
     }
+
 }

@@ -259,4 +259,55 @@ And their loan status is <status>
 //    public void testWhenLenderHaveAvailableFundForTwoRequestsThenTwoAreApprovedInOrderOthersAreOnHold(){}
 
 
+//    As a lender, I want to keep pending loan amounts in a separate account, so I don't extend too many offers and bankrupt myself.
+//
+//    Given I have approved a loan
+//    Then the requested loan amount is moved from available funds to pending funds
+//    And I see the available and pending funds reflect the changes accordingly
+
+
+
+    @Test
+    public void whenLoanIsApprovedThenPendingFundIncreaseByLoanAmountAndAvailableFundDecreaseByLoanAmount() throws NegativeAmountException, UnqualifiedLoanException {
+        // Arrange
+        mortgageLender.setAvailableFund(250000);
+        mortgageLender.setPendingFund(10000);
+        Candidate candidate = new Candidate("ID5", 21, 700, 100000);
+        LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
+
+        // Act
+        LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
+        LoanApproval loanApproval = mortgageLender.approveLoan(goodCandidateResponse);
+        double availableFund = mortgageLender.getAvailableFund();
+        double pendingFund = mortgageLender.getPendingFund();
+
+        // Assert
+
+        assertEquals(availableFund, (250000-loanApproval.getLoanResponse().getLoanAmount()));
+        assertEquals(pendingFund, (10000+loanApproval.getLoanResponse().getLoanAmount()));
+
+    }
+
+    @Test
+    public void whenLoanIsDeniedThenUnqualifiedExceptionThrownAndPendingFundNoChangeAndAvailableFundNoChange() throws NegativeAmountException, UnqualifiedLoanException {
+        // Arrange
+        mortgageLender.setAvailableFund(250000);
+        mortgageLender.setPendingFund(10000);
+        Candidate candidate = new Candidate("ID5", 51, 500, 100000);
+        LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
+        LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
+
+        // Act & Assert
+
+        assertThrows(UnqualifiedLoanException.class, () -> {
+            mortgageLender.approveLoan(goodCandidateResponse);
+        });
+
+        double availableFund = mortgageLender.getAvailableFund();
+        double pendingFund = mortgageLender.getPendingFund();
+
+        assertEquals(availableFund, 250000);
+        assertEquals(pendingFund, 10000);
+
+    }
 }
