@@ -388,38 +388,38 @@ And their loan status is <status>
 //    And the loan status is marked as expired
 
 
-    @Test
-    public void testWhenApprovedLoanIsOlderThenThreeDaysThenExpireLoanAndUpdateAvailableFund() throws NegativeAmountException, UnqualifiedLoanException, CloneNotSupportedException {
-
-        // Arrange
-        mortgageLender.setAvailableFund(250000);
-        mortgageLender.setPendingFund(10000);
-        Candidate candidate = new Candidate("ID5", 21, 700, 100000);
-        LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
-        LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
-        LoanApproval approval = mortgageLender.approveLoan(goodCandidateResponse);
-        // approval.setApprovalDate(LocalDate.now().minus(Period.ofDays(3)));;
-
-        Optional<LoanApproval> found = mortgageLender.getListOfApprovals().stream().filter(obj -> obj.equals(approval)).findFirst();
-        if (found.isPresent()) {
-            found.get().setApprovalDate(LocalDate.now().minus(Period.ofDays(3)));
-        }
-
-        double pendingFundBeforeExpire = mortgageLender.getPendingFund();   // expect 0
-        double availableFundBeforeExpire = mortgageLender.getAvailableFund(); //expect 251000
-
-
-        // Act
-        mortgageLender.checkExpiredApprovals();
-        double pendingFundAfterExpire = mortgageLender.getPendingFund();
-        double availableFundAfterExpire = mortgageLender.getAvailableFund();
-
-        // Assert
-        assertEquals(pendingFundBeforeExpire, 0);
-        assertEquals(availableFundBeforeExpire, 251000);
-        assertEquals(pendingFundAfterExpire, 10000);
-        assertEquals(availableFundAfterExpire, 250000);
-    }
+//    @Test
+//    public void testWhenApprovedLoanIsOlderThenThreeDaysThenExpireLoanAndUpdateAvailableFund() throws NegativeAmountException, UnqualifiedLoanException, CloneNotSupportedException {
+//
+//        // Arrange
+//        mortgageLender.setAvailableFund(250000);
+//        mortgageLender.setPendingFund(10000);
+//        Candidate candidate = new Candidate("ID5", 21, 700, 100000);
+//        LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
+//        LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
+//        LoanApproval approval = mortgageLender.approveLoan(goodCandidateResponse);
+//        // approval.setApprovalDate(LocalDate.now().minus(Period.ofDays(3)));;
+//
+//        Optional<LoanApproval> found = mortgageLender.getListOfApprovals().stream().filter(obj -> obj.equals(approval)).findFirst();
+//        if (found.isPresent()) {
+//            found.get().setApprovalDate(LocalDate.now().minus(Period.ofDays(3)));
+//        }
+//
+//        double pendingFundBeforeExpire = mortgageLender.getPendingFund();   // expect 0
+//        double availableFundBeforeExpire = mortgageLender.getAvailableFund(); //expect 251000
+//
+//
+//        // Act
+//        mortgageLender.checkExpiredApprovals();
+//        double pendingFundAfterExpire = mortgageLender.getPendingFund();
+//        double availableFundAfterExpire = mortgageLender.getAvailableFund();
+//
+//        // Assert
+//        assertEquals(pendingFundBeforeExpire, 0);
+//        assertEquals(availableFundBeforeExpire, 251000);
+//        assertEquals(pendingFundAfterExpire, 10000);
+//        assertEquals(availableFundAfterExpire, 250000);
+//    }
 
 
     @Test
