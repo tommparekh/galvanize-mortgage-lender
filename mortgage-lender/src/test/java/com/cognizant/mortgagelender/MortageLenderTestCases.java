@@ -1,4 +1,5 @@
 package com.cognizant.mortgagelender;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -8,10 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class MortageLenderTestCases {
 
     MortgageLender mortgageLender;
+
     @BeforeEach
-    public void setUp(){
-        mortgageLender=new MortgageLender();
+    public void setUp() {
+        mortgageLender = new MortgageLender();
     }
+
     //    When I check my available funds
 //    Then I should see how much funds I currently have
     @Test
@@ -19,20 +22,21 @@ public class MortageLenderTestCases {
         // Arrange
         mortgageLender.setAvailableFund(0.00);
         // Act
-        double fundAmount=mortgageLender.getAvailableFund();
+        double fundAmount = mortgageLender.getAvailableFund();
 
-       // Assert
-        assertEquals(fundAmount,0.0);
+        // Assert
+        assertEquals(fundAmount, 0.0);
     }
+
     @Test
     public void mortageLenderWithNonZeroFundThenShowAvailableFundAsNonZero() throws NegativeAmountException {
         // Arrange
         mortgageLender.setAvailableFund(100000.00);
         // Act
-        double fundAmount=mortgageLender.getAvailableFund();
+        double fundAmount = mortgageLender.getAvailableFund();
 
         // Assert
-        assertEquals(fundAmount,100000.0);
+        assertEquals(fundAmount, 100000.0);
     }
 //    Given I have <current_amount> available funds
 //    When I add <deposit_amount>
@@ -45,11 +49,12 @@ public class MortageLenderTestCases {
 
         // Act
         mortgageLender.depositFund(00.00);
-        double totalFundAmount=mortgageLender.getAvailableFund();
+        double totalFundAmount = mortgageLender.getAvailableFund();
 
         // Assert
-        assertEquals(totalFundAmount,1000.00);
+        assertEquals(totalFundAmount, 1000.00);
     }
+
     @Test
     public void mortageLenderDepositNonZeroAmountOneTimeThenAvailableFundUpdated() throws NegativeAmountException {
         // Arrange
@@ -57,11 +62,12 @@ public class MortageLenderTestCases {
 
         // Act
         mortgageLender.depositFund(200000.00);
-        double totalFundAmount=mortgageLender.getAvailableFund();
+        double totalFundAmount = mortgageLender.getAvailableFund();
 
         // Assert
-        assertEquals(totalFundAmount,300000.00);
+        assertEquals(totalFundAmount, 300000.00);
     }
+
     @Test
     public void mortageLenderDepositNonZeroAmountTwiceThenAvailableFundUpdated() throws NegativeAmountException {
         // Arrange
@@ -70,10 +76,10 @@ public class MortageLenderTestCases {
         // Act
         mortgageLender.depositFund(200000.00);
         mortgageLender.depositFund(300000.00);
-        double totalFundAmount=mortgageLender.getAvailableFund();
+        double totalFundAmount = mortgageLender.getAvailableFund();
 
         // Assert
-        assertEquals(totalFundAmount,600000.00);
+        assertEquals(totalFundAmount, 600000.00);
     }
 
     @Test
@@ -86,9 +92,10 @@ public class MortageLenderTestCases {
         assertThrows(NegativeAmountException.class, () -> {
             mortgageLender.depositFund(-200000.00);
         });
-        double fundAmount=mortgageLender.getAvailableFund();
-        assertEquals(fundAmount,100000.00);
+        double fundAmount = mortgageLender.getAvailableFund();
+        assertEquals(fundAmount, 100000.00);
     }
+
     /* As a lender, I want to accept and qualify loan applications, so that I can ensure I get my money back.
 Rule: To qualify for the full amount, candidates must have debt-to-income (DTI) less than 36%, credit score above 620
 and savings worth 25% of requested loan amount.
@@ -103,7 +110,7 @@ And their loan status is <status>
     @Test
     public void testCandidateWithLowDtiHighCreditScoreHighSavingsThenLoanStatusIsQualifiedAndQualificationIsQualified() {
         // Arrange
-        Candidate candidate = new Candidate("ID1", 21, 750,100000);
+        Candidate candidate = new Candidate("ID1", 21, 750, 100000);
         LoanRequest goodLoanRequest = new LoanRequest("CR1", candidate, 250000);
         // Act
         LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
@@ -113,11 +120,12 @@ And their loan status is <status>
         assertEquals(goodCandidateResponse.getStatus(), "qualified");
         assertEquals(goodCandidateResponse.getLoanAmount(), 250000);
     }
+
     @Test
     public void testCandidateWithHighDtiLowCreditScoreLowSavingsThenLoanStatusIsDeniedAndQualificationIsNonQualified() {
         // Arrange
-        Candidate candidate = new Candidate("ID2", 37, 600,10000);
-         LoanRequest poorLoanRequest = new LoanRequest("CR2", candidate, 250000);
+        Candidate candidate = new Candidate("ID2", 37, 600, 10000);
+        LoanRequest poorLoanRequest = new LoanRequest("CR2", candidate, 250000);
         // Act
         LoanResponse poorCandidateResponse = mortgageLender.acceptAndQualify(poorLoanRequest);
         // Assert
@@ -126,10 +134,11 @@ And their loan status is <status>
         assertEquals(poorCandidateResponse.getStatus(), "denied");
         assertEquals(poorCandidateResponse.getLoanAmount(), 0);
     }
+
     @Test
     public void testCandidateWithHighDtiHighCreditScoreHighSavingsThenLoanStatusIsDeniedAndQualificationIsNonQualified() {
         // Arrange
-        Candidate candidate = new Candidate("ID3", 37, 700,100000);
+        Candidate candidate = new Candidate("ID3", 37, 700, 100000);
         LoanRequest poorLoanRequest = new LoanRequest("CR3", candidate, 250000);
         // Act
         LoanResponse poorCandidateResponse = mortgageLender.acceptAndQualify(poorLoanRequest);
@@ -139,10 +148,11 @@ And their loan status is <status>
         assertEquals(poorCandidateResponse.getStatus(), "denied");
         assertEquals(poorCandidateResponse.getLoanAmount(), 0);
     }
+
     @Test
     public void testCandidateWithLowDtiLowCreditScoreHighSavingsThenLoanStatusIsDeniedAndQualificationIsNonQualified() {
         // Arrange
-        Candidate candidate = new Candidate("ID4", 30, 500,100000);
+        Candidate candidate = new Candidate("ID4", 30, 500, 100000);
         LoanRequest poorLoanRequest = new LoanRequest("CR4", candidate, 250000);
         // Act
         LoanResponse poorCandidateResponse = mortgageLender.acceptAndQualify(poorLoanRequest);
@@ -152,19 +162,22 @@ And their loan status is <status>
         assertEquals(poorCandidateResponse.getStatus(), "denied");
         assertEquals(poorCandidateResponse.getLoanAmount(), 0);
     }
+
     @Test
     public void testCandidateWithLowDtiHighCreditScoreLowSavingsThenLoanStatusIsDeniedAndQualificationIsNonQualified() {
         // Arrange
-        Candidate candidate = new Candidate("ID5", 21, 700,1000);
+        Candidate candidate = new Candidate("ID5", 21, 700, 1000);
         LoanRequest poorLoanRequest = new LoanRequest("CR5", candidate, 250000);
         // Act
         LoanResponse poorCandidateResponse = mortgageLender.acceptAndQualify(poorLoanRequest);
         // Assert
         assertEquals(poorCandidateResponse.getCandidate().getCandidateId(), "ID5");
-        assertEquals(poorCandidateResponse.getQualification(), "not qualified");
-        assertEquals(poorCandidateResponse.getStatus(), "denied");
-        assertEquals(poorCandidateResponse.getLoanAmount(), 0);
+        assertEquals(poorCandidateResponse.getQualification(), "partially qualified");
+        assertEquals(poorCandidateResponse.getStatus(), "qualified");
+        assertEquals(poorCandidateResponse.getLoanAmount(), 4000);
     }
+
+    // Test case TBD: if candidate has two loan request, where only one is approved.
 //    @Test
 //    public void testCandidateWithLowDtiHighCreditScoreHighSavingsForOneLoanApplicationWhenReqeustTwoLoansThenOneRequestApprovedOtherDenied() {
 //        // Arrange
@@ -187,4 +200,6 @@ And their loan status is <status>
 //        assertEquals(candidateResponse2.getLoanAmount(), 0);
 //    }
 
+
+    // Test Case TBD : What if loan is requested but no available funds.
 }

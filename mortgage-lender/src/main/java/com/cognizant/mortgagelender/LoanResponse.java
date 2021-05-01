@@ -19,12 +19,24 @@ public class LoanResponse {
 
     }
 
+    public void setQualification(String qualification) {
+        this.qualification = qualification;
+    }
+
     public String getStatus() {
         return this.status;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public double getLoanAmount() {
         return this.loanAmount;
+    }
+
+    public void setLoanAmount(double loanAmount) {
+        this.loanAmount = loanAmount;
     }
 
     public LoanRequest getLoanRequest() {

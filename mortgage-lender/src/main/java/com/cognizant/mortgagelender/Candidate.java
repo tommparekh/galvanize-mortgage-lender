@@ -3,15 +3,15 @@ package com.cognizant.mortgagelender;
 public class Candidate {
     private String candidateId;
     private double dti;
-    private double credit_score;
-    private double saving;
+    private double creditScore;
+    private double savings;
 
     public Candidate(String id1, double dti, double
             credit_score, double saving) {
         this.candidateId = id1;
         this.dti = dti;
-        this.credit_score = credit_score;
-        this.saving = saving;
+        this.creditScore = credit_score;
+        this.savings = saving;
     }
 
     public String getCandidateId() {
@@ -30,19 +30,19 @@ public class Candidate {
         this.dti = dti;
     }
 
-    public double getCredit_score() {
-        return credit_score;
+    public double getCreditScore() {
+        return creditScore;
     }
 
-    public void setCredit_score(double credit_score) {
-        this.credit_score = credit_score;
+    public void setCreditScore(double creditScore) {
+        this.creditScore = creditScore;
     }
 
-    public double getSaving() {
-        return saving;
+    public double getSavings() {
+        return savings;
     }
 
-    public void setSaving(double saving) {
-        this.saving = saving;
+    public void setSavings(double savings) {
+        this.savings = savings;
     }
 }
