@@ -3,12 +3,12 @@ package com.cognizant.mortgagelender;
 public class LoanRequest {
     private String loanRequestId;
     private Candidate candidate;
-    private double requestAmout;
+    private double requestAmount;
 
     public LoanRequest(String loanRequestId, Candidate candidate, double requestAmout) {
         this.loanRequestId = loanRequestId;
         this.candidate = candidate;
-        this.requestAmout = requestAmout;
+        this.requestAmount = requestAmout;
     }
 
     public String getLoanRequestId() {
@@ -19,19 +19,19 @@ public class LoanRequest {
         this.loanRequestId = loanRequestId;
     }
 
-    public void setCandidate(Candidate candidate) {
-        this.candidate = candidate;
+    public double getRequestAmount() {
+        return requestAmount;
     }
 
-    public double getRequestAmout() {
-        return requestAmout;
-    }
-
-    public void setRequestAmout(double requestAmout) {
-        this.requestAmout = requestAmout;
+    public void setRequestAmount(double requestAmount) {
+        this.requestAmount = requestAmount;
     }
 
     public Candidate getCandidate() {
         return this.candidate;
+    }
+
+    public void setCandidate(Candidate candidate) {
+        this.candidate = candidate;
     }
 }

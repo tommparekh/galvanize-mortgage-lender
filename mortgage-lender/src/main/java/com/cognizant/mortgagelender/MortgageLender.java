@@ -8,6 +8,9 @@ public class MortgageLender {
     private static final String STATUS_QUALIFIED = "qualified";
     private static final String STATUS_APPROVED = "approved";
     private static final String STATUS_ONHOLD = "onhold";
+    private static final String STATUS_ACCEPTED = "accepted";
+    private static final String STATUS_REJECTED = "rejected";
+
     private double pendingFund;
     private double availableFund;
 
@@ -15,7 +18,10 @@ public class MortgageLender {
         return pendingFund;
     }
 
-    public void setPendingFund(double pendingFund) {
+    public void setPendingFund(double pendingFund) throws NegativeAmountException {
+        if (pendingFund < 0) {
+            throw new NegativeAmountException("Pending Fund is less then zero.");
+        }
         this.pendingFund = pendingFund;
     }
 
@@ -25,7 +31,7 @@ public class MortgageLender {
 
     public void setAvailableFund(double availableFund) throws NegativeAmountException {
         if (availableFund < 0) {
-            throw new NegativeAmountException("Negative Amount");
+            throw new NegativeAmountException("Available Fund is less then zero.");
         }
         this.availableFund = availableFund;
     }
@@ -34,7 +40,7 @@ public class MortgageLender {
         if (deposit >= 0) {
             availableFund += deposit;
         } else
-            throw new NegativeAmountException("Negative Amount");
+            throw new NegativeAmountException("Deposit amount is less then zero.");
 
 
     }
@@ -47,12 +53,12 @@ public class MortgageLender {
 
         // base requirements
         if (candidate.getDti() < 36 && candidate.getCreditScore() > 620) {
-            response.setStatus(MortgageLender.STATUS_QUALIFIED);
+            response.setLoanResponseStatus(MortgageLender.STATUS_QUALIFIED);
 
             // Either approved or partial
-            if (loanRequest.getRequestAmout() / 4 <= candidate.getSavings()) {
+            if (loanRequest.getRequestAmount() / 4 <= candidate.getSavings()) {
                 response.setQualification(MortgageLender.QUALIFICATION_QUALIFIED);
-                response.setLoanAmount(loanRequest.getRequestAmout());
+                response.setLoanAmount(loanRequest.getRequestAmount());
             } else {
                 double partialAmt = candidate.getSavings() * 4;
                 response.setQualification(MortgageLender.QUALIFICATION_PARTIALLY_QUALIFIED);
@@ -60,7 +66,7 @@ public class MortgageLender {
             }
         } else {
             // no good score or high dti
-            response.setStatus(MortgageLender.STATUS_DENIED);
+            response.setLoanResponseStatus(MortgageLender.STATUS_DENIED);
             response.setLoanAmount(0);
             response.setQualification(MortgageLender.QUALIFICATION_NOT_QUALIFIED);
         }
@@ -74,9 +80,9 @@ public class MortgageLender {
                 || response.getQualification().equals(MortgageLender.QUALIFICATION_PARTIALLY_QUALIFIED)) {
             LoanApproval approval = new LoanApproval(response);
             if (availableFund < response.getLoanAmount()) {
-                approval.setStatus(MortgageLender.STATUS_ONHOLD);
+                approval.setLoanApprovalStatus(MortgageLender.STATUS_ONHOLD);
             } else {
-                approval.setStatus(MortgageLender.STATUS_APPROVED);
+                approval.setLoanApprovalStatus(MortgageLender.STATUS_APPROVED);
                 this.setAvailableFund((getAvailableFund() - approval.getLoanResponse().getLoanAmount()));
                 this.setPendingFund((getPendingFund() + approval.getLoanResponse().getLoanAmount()));
             }
@@ -86,4 +92,17 @@ public class MortgageLender {
 
     }
 
+    public LoanOffer processOffer(LoanApproval approval, boolean isAccepted) {
+        LoanOffer loanOffer = new LoanOffer(approval);
+        if (isAccepted) {
+            loanOffer.setLoanOfferStatus(MortgageLender.STATUS_ACCEPTED);
+        } else {
+            loanOffer.setLoanOfferStatus(MortgageLender.STATUS_REJECTED);
+            loanOffer.getLoanApproval().setLoanApprovalStatus(MortgageLender.STATUS_REJECTED);
+            loanOffer.getLoanApproval().getLoanResponse().setLoanResponseStatus(MortgageLender.STATUS_REJECTED);
+            availableFund += approval.getLoanResponse().getLoanAmount();
+        }
+        pendingFund -= approval.getLoanResponse().getLoanAmount();
+        return loanOffer;
+    }
 }

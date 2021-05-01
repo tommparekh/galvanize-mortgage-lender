@@ -117,7 +117,7 @@ And their loan status is <status>
         // Assert
         assertEquals(goodCandidateResponse.getCandidate().getCandidateId(), "ID1");
         assertEquals(goodCandidateResponse.getQualification(), "qualified");
-        assertEquals(goodCandidateResponse.getStatus(), "qualified");
+        assertEquals(goodCandidateResponse.getLoanResponseStatus(), "qualified");
         assertEquals(goodCandidateResponse.getLoanAmount(), 250000);
     }
 
@@ -131,7 +131,7 @@ And their loan status is <status>
         // Assert
         assertEquals(poorCandidateResponse.getCandidate().getCandidateId(), "ID2");
         assertEquals(poorCandidateResponse.getQualification(), "not qualified");
-        assertEquals(poorCandidateResponse.getStatus(), "denied");
+        assertEquals(poorCandidateResponse.getLoanResponseStatus(), "denied");
         assertEquals(poorCandidateResponse.getLoanAmount(), 0);
     }
 
@@ -145,7 +145,7 @@ And their loan status is <status>
         // Assert
         assertEquals(poorCandidateResponse.getCandidate().getCandidateId(), "ID3");
         assertEquals(poorCandidateResponse.getQualification(), "not qualified");
-        assertEquals(poorCandidateResponse.getStatus(), "denied");
+        assertEquals(poorCandidateResponse.getLoanResponseStatus(), "denied");
         assertEquals(poorCandidateResponse.getLoanAmount(), 0);
     }
 
@@ -159,7 +159,7 @@ And their loan status is <status>
         // Assert
         assertEquals(poorCandidateResponse.getCandidate().getCandidateId(), "ID4");
         assertEquals(poorCandidateResponse.getQualification(), "not qualified");
-        assertEquals(poorCandidateResponse.getStatus(), "denied");
+        assertEquals(poorCandidateResponse.getLoanResponseStatus(), "denied");
         assertEquals(poorCandidateResponse.getLoanAmount(), 0);
     }
 
@@ -173,7 +173,7 @@ And their loan status is <status>
         // Assert
         assertEquals(poorCandidateResponse.getCandidate().getCandidateId(), "ID5");
         assertEquals(poorCandidateResponse.getQualification(), "partially qualified");
-        assertEquals(poorCandidateResponse.getStatus(), "qualified");
+        assertEquals(poorCandidateResponse.getLoanResponseStatus(), "qualified");
         assertEquals(poorCandidateResponse.getLoanAmount(), 4000);
     }
 
@@ -213,7 +213,7 @@ And their loan status is <status>
         LoanApproval loanApproval = mortgageLender.approveLoan(goodCandidateResponse);
         // Assert
 
-        assertEquals(loanApproval.getStatus(), "approved");
+        assertEquals(loanApproval.getLoanApprovalStatus(), "approved");
 
     }
 
@@ -228,7 +228,7 @@ And their loan status is <status>
         LoanApproval loanApproval = mortgageLender.approveLoan(goodCandidateResponse);
         // Assert
 
-        assertEquals(loanApproval.getStatus(), "approved");
+        assertEquals(loanApproval.getLoanApprovalStatus(), "approved");
 
     }
 
@@ -243,7 +243,7 @@ And their loan status is <status>
         LoanApproval loanApproval = mortgageLender.approveLoan(goodCandidateResponse);
         // Assert
 
-        assertEquals(loanApproval.getStatus(), "onhold");
+        assertEquals(loanApproval.getLoanApprovalStatus(), "onhold");
 
     }
 
@@ -266,7 +266,6 @@ And their loan status is <status>
 //    And I see the available and pending funds reflect the changes accordingly
 
 
-
     @Test
     public void whenLoanIsApprovedThenPendingFundIncreaseByLoanAmountAndAvailableFundDecreaseByLoanAmount() throws NegativeAmountException, UnqualifiedLoanException {
         // Arrange
@@ -283,8 +282,8 @@ And their loan status is <status>
 
         // Assert
 
-        assertEquals(availableFund, (250000-loanApproval.getLoanResponse().getLoanAmount()));
-        assertEquals(pendingFund, (10000+loanApproval.getLoanResponse().getLoanAmount()));
+        assertEquals(availableFund, (250000 - loanApproval.getLoanResponse().getLoanAmount()));
+        assertEquals(pendingFund, (10000 + loanApproval.getLoanResponse().getLoanAmount()));
 
     }
 
@@ -308,6 +307,64 @@ And their loan status is <status>
 
         assertEquals(availableFund, 250000);
         assertEquals(pendingFund, 10000);
+
+    }
+
+
+//    As a lender, I want to process response for approved loans, so that I can move forward with the loan.
+//
+//    Given I have an approved loan
+//    When the applicant accepts my loan offer
+//    Then the loan amount is removed from the pending funds
+//    And the loan status is marked as accepted
+//
+//    Given I have an approved loan
+//    When the applicant rejects my loan offer
+//    Then the loan amount is moved from the pending funds back to available funds
+//    And the loan status is marked as rejected
+
+    @Test
+    public void testWhenCustomerAcceptApprovedLoanThenUpdatePendingFundAndMarkApprovedLoanAsAccepted() throws NegativeAmountException, UnqualifiedLoanException {
+        // Arrange
+        mortgageLender.setAvailableFund(250000);
+        mortgageLender.setPendingFund(10000);
+        Candidate candidate = new Candidate("ID5", 21, 700, 100000);
+        LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
+        LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
+        LoanApproval approval = mortgageLender.approveLoan(goodCandidateResponse);
+
+        // Act
+        LoanOffer offer = mortgageLender.processOffer(approval, true);
+        double pendingFund = mortgageLender.getPendingFund();
+
+         // Assert
+        assertEquals(pendingFund, 10000);
+        assertEquals(offer.getLoanOfferStatus(), "accepted");
+        assertEquals(offer.getLoanResponse().getLoanApprovalStatus(), "approved");
+        assertEquals(offer.getLoanResponse().getLoanResponse().getLoanResponseStatus(), "qualified");
+    }
+
+    @Test
+    public void testWhenCustomerRejectApprovedLoanThenUpdateAvailableFundAndMarkApprovedLoanAsRejected() throws NegativeAmountException, UnqualifiedLoanException {
+        // Arrange
+        mortgageLender.setAvailableFund(250000);
+        mortgageLender.setPendingFund(10000);
+        Candidate candidate = new Candidate("ID5", 21, 700, 100000);
+        LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
+        LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
+        LoanApproval approval = mortgageLender.approveLoan(goodCandidateResponse);
+
+        // Act
+        LoanOffer offer = mortgageLender.processOffer(approval, false);
+        double pendingFund = mortgageLender.getPendingFund();
+        double availableFund = mortgageLender.getAvailableFund();
+
+        // Assert
+        assertEquals(availableFund, 250000);
+        assertEquals(pendingFund, 10000);
+        assertEquals(offer.getLoanOfferStatus(), "rejected");
+        assertEquals(offer.getLoanResponse().getLoanApprovalStatus(), "rejected");
+        assertEquals(offer.getLoanResponse().getLoanResponse().getLoanResponseStatus(), "rejected");
 
     }
 }

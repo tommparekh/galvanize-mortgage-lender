@@ -3,7 +3,7 @@ package com.cognizant.mortgagelender;
 public class LoanResponse {
     private LoanRequest loanRequest;
     private String qualification;
-    private String status;
+    private String loanResponseStatus;
     private double loanAmount;
 
     public LoanResponse(LoanRequest loanRequest) {
@@ -23,12 +23,12 @@ public class LoanResponse {
         this.qualification = qualification;
     }
 
-    public String getStatus() {
-        return this.status;
+    public String getLoanResponseStatus() {
+        return this.loanResponseStatus;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setLoanResponseStatus(String loanResponseStatus) {
+        this.loanResponseStatus = loanResponseStatus;
     }
 
     public double getLoanAmount() {
