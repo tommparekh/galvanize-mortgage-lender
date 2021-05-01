@@ -21,4 +21,8 @@ public class MortgageLender {
 
 
     }
+
+    public LoanResponse acceptAndQualify(LoanRequest loanRequest) {
+        return new LoanResponse(loanRequest);
+    }
 }
