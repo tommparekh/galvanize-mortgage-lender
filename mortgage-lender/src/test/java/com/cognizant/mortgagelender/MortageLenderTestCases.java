@@ -210,12 +210,13 @@ And their loan status is <status>
         LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
         // Act
         LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
-        LoanApproval loanApproval= mortgageLender.approveLoan(goodCandidateResponse);
+        LoanApproval loanApproval = mortgageLender.approveLoan(goodCandidateResponse);
         // Assert
 
-        assertEquals(loanApproval.getStatus(),"approved" );
+        assertEquals(loanApproval.getStatus(), "approved");
 
     }
+
     @Test
     public void testWhenLenderHaveAvailableFundThenLoanStatusIsApprovedForPartiallyQualifiedResponse() throws NegativeAmountException, UnqualifiedLoanException {
         // Arrange
@@ -224,10 +225,10 @@ And their loan status is <status>
         LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
         // Act
         LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
-        LoanApproval loanApproval= mortgageLender.approveLoan(goodCandidateResponse);
+        LoanApproval loanApproval = mortgageLender.approveLoan(goodCandidateResponse);
         // Assert
 
-        assertEquals(loanApproval.getStatus(),"approved" );
+        assertEquals(loanApproval.getStatus(), "approved");
 
     }
 
@@ -239,10 +240,10 @@ And their loan status is <status>
         LoanRequest goodLoanRequest = new LoanRequest("CR5", candidate, 250000);
         // Act
         LoanResponse goodCandidateResponse = mortgageLender.acceptAndQualify(goodLoanRequest);
-        LoanApproval loanApproval= mortgageLender.approveLoan(goodCandidateResponse);
+        LoanApproval loanApproval = mortgageLender.approveLoan(goodCandidateResponse);
         // Assert
 
-        assertEquals(loanApproval.getStatus(),"onhold" );
+        assertEquals(loanApproval.getStatus(), "onhold");
 
     }
 
@@ -258,6 +259,4 @@ And their loan status is <status>
 //    public void testWhenLenderHaveAvailableFundForTwoRequestsThenTwoAreApprovedInOrderOthersAreOnHold(){}
 
 
-
 }
-
